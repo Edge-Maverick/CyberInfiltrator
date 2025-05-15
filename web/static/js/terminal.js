@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let socket;
     let currentSession = null;
     
+    // WebSocket ready state constants (for browsers that don't expose these)
+    const WS_CONNECTING = 0;
+    const WS_OPEN = 1;
+    const WS_CLOSING = 2;
+    const WS_CLOSED = 3;
+    
     // Initialize the terminal
     function initTerminal() {
         // Create the terminal
@@ -63,11 +69,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 terminal.write('\r\n');
                 
                 // Send command to server
-                if (socket && socket.readyState === WebSocket.OPEN && commandBuffer.trim()) {
-                    socket.send(commandBuffer);
-                    commandBuffer = '';
+                if (commandBuffer.trim()) {
+                    if (socket && socket.readyState === WS_OPEN) {
+                        terminal.write(`Sending command: ${commandBuffer}\r\n`);
+                        socket.send(commandBuffer);
+                        commandBuffer = '';
+                    } else {
+                        let errorMsg = '';
+                        if (!socket) {
+                            errorMsg = 'Socket not initialized';
+                        } else {
+                            switch(socket.readyState) {
+                                case WS_CONNECTING:
+                                    errorMsg = 'Socket is still connecting...';
+                                    break;
+                                case WS_CLOSED:
+                                    errorMsg = 'Socket is closed';
+                                    break;
+                                case WS_CLOSING:
+                                    errorMsg = 'Socket is closing';
+                                    break;
+                                default:
+                                    errorMsg = `Unknown socket state: ${socket.readyState}`;
+                            }
+                        }
+                        terminal.write(`Not connected to server (${errorMsg})\r\n`);
+                        showPrompt();
+                        commandBuffer = '';
+                    }
                 } else {
-                    terminal.write('Not connected to server\r\n');
                     showPrompt();
                     commandBuffer = '';
                 }
@@ -307,4 +337,28 @@ document.addEventListener('DOMContentLoaded', function() {
             terminal.write('\r\nNo active session to reconnect to. Please start a new game.\r\n');
         }
     });
+    
+    // Handle mobile input
+    const mobileInput = document.getElementById('mobile-input');
+    const sendCommandBtn = document.getElementById('send-command-btn');
+    
+    function sendMobileCommand() {
+        const command = mobileInput.value.trim();
+        if (command && socket && socket.readyState === WS_OPEN) {
+            socket.send(command);
+            terminal.write(`\r\n${command}\r\n`);
+            mobileInput.value = '';
+        } else if (command) {
+            terminal.write('\r\nNot connected to server. Please try again.\r\n');
+            showPrompt();
+        }
+    }
+    
+    mobileInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            sendMobileCommand();
+        }
+    });
+    
+    sendCommandBtn.addEventListener('click', sendMobileCommand);
 });

@@ -303,6 +303,41 @@ footer {
     color: var(--terminal-black);
 }
 
+/* Mobile input container */
+.mobile-input-container {
+    display: flex;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background-color: var(--header-bg);
+    border: 1px solid var(--matrix-green);
+}
+
+#mobile-input {
+    flex: 1;
+    padding: 8px;
+    font-family: 'Courier New', monospace;
+    background-color: #000;
+    color: var(--matrix-green);
+    border: none;
+    outline: none;
+}
+
+#send-command-btn {
+    padding: 8px 15px;
+    background-color: #000;
+    color: var(--matrix-green);
+    border: none;
+    border-left: 1px solid var(--matrix-green);
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+}
+
+#send-command-btn:hover {
+    background-color: var(--matrix-green);
+    color: #000;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     .mission-info {
