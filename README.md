@@ -392,10 +392,229 @@ To implement the authentic terminal experience:
    - The Replit web view will automatically open when the server starts
    - For deployment, use the "Deploy" button in Replit to make it publicly accessible
 
-3. **Server Deployment**:
-   - Choose a hosting provider with Go support
-   - Set up firewall to allow port 5000 (or configure for standard HTTP/HTTPS)
-   - Configure reverse proxy (Nginx/Apache) for better security
+3. **External Hosting Deployment**:
+
+   a. **Digital Ocean/Linode/AWS EC2**:
+   ```bash
+   # SSH into your server
+   ssh user@your-server-ip
+   
+   # Install Go if needed
+   sudo apt update
+   sudo apt install golang-go
+   
+   # Clone the repository
+   git clone https://github.com/yourusername/hacksim.git
+   cd hacksim
+   
+   # Install dependencies and build
+   go mod tidy
+   go build -o hacksim
+   
+   # Run the server (for testing)
+   ./hacksim web
+   
+   # For production, create a systemd service
+   sudo nano /etc/systemd/system/hacksim.service
+   ```
+   
+   Systemd service file content:
+   ```
+   [Unit]
+   Description=HackSim Terminal Hacking Simulator
+   After=network.target
+   
+   [Service]
+   User=your-username
+   WorkingDirectory=/path/to/hacksim
+   ExecStart=/path/to/hacksim/hacksim web
+   Restart=always
+   RestartSec=5
+   StandardOutput=syslog
+   StandardError=syslog
+   SyslogIdentifier=hacksim
+   
+   [Install]
+   WantedBy=multi-user.target
+   ```
+   
+   Start and enable the service:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl start hacksim
+   sudo systemctl enable hacksim
+   ```
+   
+   b. **Nginx Reverse Proxy Setup**:
+   ```bash
+   # Install Nginx
+   sudo apt install nginx
+   
+   # Configure Nginx
+   sudo nano /etc/nginx/sites-available/hacksim
+   ```
+   
+   Nginx config file:
+   ```
+   server {
+       listen 80;
+       server_name yourdomain.com www.yourdomain.com;
+   
+       location / {
+           proxy_pass http://localhost:5000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+   
+   Enable the site and restart Nginx:
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/hacksim /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl restart nginx
+   ```
+   
+   c. **SSL with Let's Encrypt**:
+   ```bash
+   # Install Certbot
+   sudo apt install certbot python3-certbot-nginx
+   
+   # Obtain SSL certificate
+   sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+   
+   # Follow the prompts to complete the setup
+   ```
+
+   d. **Heroku Deployment**:
+   
+   Create a `Procfile` in the project root:
+   ```
+   web: ./hacksim web
+   ```
+   
+   Create a `heroku.yml` file:
+   ```yaml
+   build:
+     docker:
+       web: Dockerfile
+   ```
+   
+   Deploy to Heroku:
+   ```bash
+   # Install Heroku CLI
+   curl https://cli-assets.heroku.com/install.sh | sh
+   
+   # Login to Heroku
+   heroku login
+   
+   # Create a new Heroku app
+   heroku create your-hacksim-app
+   
+   # Set the stack to container
+   heroku stack:set container
+   
+   # Push to Heroku
+   git push heroku main
+   
+   # Open your app
+   heroku open
+   ```
+
+   e. **Railway/Render Deployment**:
+
+   These platforms support direct deployment from GitHub with automatic builds:
+
+   1. Connect your GitHub repository
+   2. Select the Go or Docker deployment type
+   3. Configure the build command: `go build -o hacksim`
+   4. Set the start command: `./hacksim web`
+   5. Configure environment variables if needed
+   6. Deploy and view your application
+
+   f. **Google Cloud Run Deployment**:
+
+   ```bash
+   # Install Google Cloud SDK
+   # https://cloud.google.com/sdk/docs/install
+
+   # Login to Google Cloud
+   gcloud auth login
+
+   # Set your project
+   gcloud config set project your-project-id
+
+   # Build the container
+   gcloud builds submit --tag gcr.io/your-project-id/hacksim
+
+   # Deploy to Cloud Run
+   gcloud run deploy hacksim \
+     --image gcr.io/your-project-id/hacksim \
+     --platform managed \
+     --allow-unauthenticated \
+     --port 5000
+   ```
+
+   g. **Static Frontend with Serverless Backend (Vercel, Netlify)**:
+
+   For this approach, separate the frontend (HTML/CSS/JS) from the Go backend:
+
+   1. Structure your project:
+   ```
+   /frontend  # Static files for hosting on Vercel/Netlify
+     /public
+       index.html
+       css/
+       js/
+   /api       # Serverless functions
+     server.go
+   ```
+
+   2. Create a serverless function for the API:
+   ```go
+   // api/server.go
+   package api
+
+   import (
+       "encoding/json"
+       "net/http"
+   )
+
+   func Handler(w http.ResponseWriter, r *http.Request) {
+       // Handle API requests
+       response := map[string]interface{}{
+           "message": "HackSim API",
+       }
+       json.NewEncoder(w).Encode(response)
+   }
+   ```
+
+   3. Create a Vercel configuration file (`vercel.json`):
+   ```json
+   {
+     "version": 2,
+     "builds": [
+       { "src": "frontend/**", "use": "@vercel/static" },
+       { "src": "api/**/*.go", "use": "@vercel/go" }
+     ],
+     "routes": [
+       { "src": "/api/(.*)", "dest": "/api/$1" },
+       { "src": "/(.*)", "dest": "/frontend/$1" }
+     ]
+   }
+   ```
+
+   4. Deploy to Vercel:
+   ```bash
+   # Install Vercel CLI
+   npm install -g vercel
+
+   # Deploy
+   vercel
+   ```
 
 4. **Docker Deployment**:
    ```
