@@ -76,17 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Send command to server
                 if (commandBuffer.trim()) {
                     if (socket && socket.readyState === WS_OPEN) {
-                        terminal.write(`Sending command: ${commandBuffer}\r\n`);
+                        // Don't echo command here - let server echo it back
                         socket.send(commandBuffer);
                         commandBuffer = '';
                     } else {
                         let errorMsg = '';
                         if (!socket) {
-                            errorMsg = 'Socket not initialized';
+                            errorMsg = 'Connection error: Terminal offline';
                         } else {
                             switch(socket.readyState) {
                                 case WS_CONNECTING:
-                                    errorMsg = 'Socket is still connecting...';
+                                    errorMsg = 'Connection in progress...';
                                     break;
                                 case WS_CLOSED:
                                     errorMsg = 'Socket is closed';
@@ -150,9 +150,12 @@ document.addEventListener('DOMContentLoaded', function() {
         terminal.write('Connecting to mission server...\r\n');
     }
     
-    // Show command prompt
+    // Show command prompt with username, hostname and path
     function showPrompt() {
-        terminal.write('\r\n\x1b[1;32m$ \x1b[0m');
+        const username = 'hacker';
+        const hostname = 'hacksim';
+        const currentPath = '~';
+        terminal.write('\r\n\x1b[1;32m' + username + '@' + hostname + '\x1b[0m:\x1b[1;34m' + currentPath + '\x1b[0m\x1b[1;32m$ \x1b[0m');
     }
     
     // Update the mission info panel
@@ -261,27 +264,39 @@ document.addEventListener('DOMContentLoaded', function() {
                             break;
                         
                         case 'command_output':
-                            // First echo the command that was sent
+                            // First echo the command with proper prompt
                             if (data.command) {
-                                terminal.write('\r\n\x1b[1;32m$ \x1b[0m' + data.command + '\r\n');
+                                const username = 'hacker';
+                                const hostname = 'hacksim';
+                                const currentPath = '~';
+                                terminal.write('\r\n\x1b[1;32m' + username + '@' + hostname + '\x1b[0m:\x1b[1;34m' + currentPath + '\x1b[0m\x1b[1;32m$ \x1b[0m' + data.command + '\r\n');
                             }
                             
-                            // Then display command output
-                            terminal.write(data.output + '\r\n');
-                            
-                            // Show a new prompt when done
-                            showPrompt();
-                            
-                            // Update progress
-                            updateProgress(data.progress);
-                            
-                            // Check if objective was completed
-                            if (data.objective_completed) {
-                                const index = data.objective_index || 0;
-                                markObjectiveCompleted(index);
-                                terminal.write('\r\n\x1b[1;32m✓ Objective completed!\x1b[0m\r\n');
+                            // Add a tiny delay for realism before showing output
+                            setTimeout(() => {
+                                // Format the output with proper colors
+                                let formattedOutput = data.output
+                                    .replace(/error:/gi, '\x1b[1;31merror:\x1b[0m')
+                                    .replace(/success/gi, '\x1b[1;32msuccess\x1b[0m')
+                                    .replace(/warning:/gi, '\x1b[1;33mwarning:\x1b[0m');
+                                
+                                // Display formatted output
+                                terminal.write(formattedOutput + '\r\n');
+                                
+                                // Update progress
+                                updateProgress(data.progress);
+                                
+                                // Check if objective was completed
+                                if (data.objective_completed) {
+                                    const index = data.objective_index || 0;
+                                    markObjectiveCompleted(index);
+                                    terminal.write('\r\n\x1b[1;32m✓ Objective completed!\x1b[0m\r\n');
+                                }
+                                
+                                // Show a new prompt when done
                                 showPrompt();
-                            }
+                            }, 150);
+                            
                             break;
                         
                         case 'game_complete':
