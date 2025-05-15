@@ -142,67 +142,83 @@ document.addEventListener('DOMContentLoaded', function() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/ws?session=${sessionId}`;
         
-        // Create WebSocket connection
-        socket = new WebSocket(wsUrl);
+        terminal.write(`Connecting to: ${wsUrl}\r\n`);
         
-        // Connection opened
-        socket.addEventListener('open', (event) => {
-            connectionStatus.classList.add('connected');
-            statusText.textContent = 'Connected';
-            terminal.write('\r\nConnected to mission server.\r\n');
-            showPrompt();
-        });
-        
-        // Listen for messages
-        socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
+        try {
+            // Create WebSocket connection
+            socket = new WebSocket(wsUrl);
             
-            switch (data.type) {
-                case 'info':
-                    // Update mission info
-                    updateMissionInfo(data.scenario, data.description, data.objectives);
-                    break;
+            // Connection opened
+            socket.addEventListener('open', (event) => {
+                connectionStatus.classList.add('connected');
+                statusText.textContent = 'Connected';
+                terminal.write('\r\nConnected to mission server.\r\n');
+                showPrompt();
+            });
+            
+            // Listen for messages
+            socket.addEventListener('message', (event) => {
+                terminal.write(`\r\nReceived message: ${event.data.substring(0, 50)}...\r\n`);
                 
-                case 'command_output':
-                    // Display command output
-                    terminal.write('\r\n' + data.output + '\r\n');
-                    showPrompt();
+                try {
+                    const data = JSON.parse(event.data);
                     
-                    // Update progress
-                    updateProgress(data.progress);
-                    
-                    // Check if objective was completed
-                    if (data.objective_completed) {
-                        const index = data.objective_index || 0;
-                        markObjectiveCompleted(index);
-                        terminal.write('\r\n\x1b[1;32m✓ Objective completed!\x1b[0m\r\n');
+                    switch (data.type) {
+                        case 'info':
+                            terminal.write('Received mission info.\r\n');
+                            // Update mission info
+                            updateMissionInfo(data.scenario, data.description, data.objectives);
+                            break;
+                        
+                        case 'command_output':
+                            // Display command output
+                            terminal.write('\r\n' + data.output + '\r\n');
+                            showPrompt();
+                            
+                            // Update progress
+                            updateProgress(data.progress);
+                            
+                            // Check if objective was completed
+                            if (data.objective_completed) {
+                                const index = data.objective_index || 0;
+                                markObjectiveCompleted(index);
+                                terminal.write('\r\n\x1b[1;32m✓ Objective completed!\x1b[0m\r\n');
+                            }
+                            break;
+                        
+                        case 'game_complete':
+                            // Display game complete message
+                            terminal.write('\r\n\x1b[1;32m' + data.message + '\x1b[0m\r\n');
+                            terminal.write('\r\n\x1b[1;32mMission Complete! All objectives achieved.\x1b[0m\r\n');
+                            break;
+                        
+                        default:
+                            terminal.write(`Unknown message type: ${data.type}\r\n`);
+                            console.log('Unknown message type:', data.type);
                     }
-                    break;
-                
-                case 'game_complete':
-                    // Display game complete message
-                    terminal.write('\r\n\x1b[1;32m' + data.message + '\x1b[0m\r\n');
-                    terminal.write('\r\n\x1b[1;32mMission Complete! All objectives achieved.\x1b[0m\r\n');
-                    break;
-                
-                default:
-                    console.log('Unknown message type:', data.type);
-            }
-        });
-        
-        // Connection closed
-        socket.addEventListener('close', (event) => {
-            connectionStatus.classList.remove('connected');
-            statusText.textContent = 'Disconnected';
-            terminal.write('\r\n\x1b[1;31mDisconnected from mission server.\x1b[0m\r\n');
-            currentSession = null;
-        });
-        
-        // Connection error
-        socket.addEventListener('error', (event) => {
-            console.error('WebSocket error:', event);
-            terminal.write('\r\n\x1b[1;31mConnection error. Please try again.\x1b[0m\r\n');
-        });
+                } catch (error) {
+                    terminal.write(`\r\n\x1b[1;31mError parsing message: ${error.message}\x1b[0m\r\n`);
+                    console.error('Error parsing message:', error);
+                }
+            });
+            
+            // Connection closed
+            socket.addEventListener('close', (event) => {
+                connectionStatus.classList.remove('connected');
+                statusText.textContent = 'Disconnected';
+                terminal.write(`\r\n\x1b[1;31mWebSocket closed with code: ${event.code}, reason: ${event.reason}\x1b[0m\r\n`);
+                currentSession = null;
+            });
+            
+            // Connection error
+            socket.addEventListener('error', (event) => {
+                console.error('WebSocket error:', event);
+                terminal.write('\r\n\x1b[1;31mWebSocket connection error. Please try again.\x1b[0m\r\n');
+            });
+        } catch (error) {
+            terminal.write(`\r\n\x1b[1;31mFailed to create WebSocket: ${error.message}\x1b[0m\r\n`);
+            console.error('Failed to create WebSocket:', error);
+        }
     }
     
     // Start a new game session
@@ -214,6 +230,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize the terminal
         initTerminal();
         
+        // Show debug message in terminal
+        terminal.write('\r\nConnecting to session API...\r\n');
+        
         // Create a new session via API
         fetch('/api/session', {
             method: 'POST',
@@ -222,16 +241,25 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ scenario: scenario })
         })
-        .then(response => response.json())
+        .then(response => {
+            terminal.write(`API Response Status: ${response.status}\r\n`);
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            terminal.write(`Session created: ${data.session_id}\r\n`);
             terminalTitle.textContent = 'Connected: ' + data.scenario;
             currentSession = data.session_id;
             
             // Connect to WebSocket with the session ID
+            terminal.write(`Connecting to WebSocket...\r\n`);
             connectWebSocket(data.session_id);
         })
         .catch(error => {
             console.error('Error creating session:', error);
+            terminal.write(`\r\n\x1b[1;31mError: ${error.message}\x1b[0m\r\n`);
             terminal.write('\r\n\x1b[1;31mFailed to connect to mission server. Please try again.\x1b[0m\r\n');
             
             // Show scenario selector again after a brief delay

@@ -91,31 +91,43 @@ var sessionManager = NewSessionManager()
 
 // handleWebSocket handles WebSocket connections for terminal interactivity
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+        log.Println("WebSocket connection request received")
+        
         // Extract session ID from query parameter
         sessionID := r.URL.Query().Get("session")
         scenario := r.URL.Query().Get("scenario")
         
+        log.Printf("WebSocket params - session: %s, scenario: %s", sessionID, scenario)
+        
         // Set default values if not provided
         if sessionID == "" {
                 sessionID = "session-default"
+                log.Println("Using default session ID:", sessionID)
         }
         
         if scenario == "" {
                 scenario = "network-breach"
+                log.Println("Using default scenario:", scenario)
         }
         
         // Create a new session if it doesn't exist
         gameState, exists := sessionManager.GetSession(sessionID)
         if !exists {
+                log.Printf("Creating new game session: %s (scenario: %s)", sessionID, scenario)
                 gameState = sessionManager.CreateSession(sessionID, scenario)
+        } else {
+                log.Printf("Using existing game session: %s", sessionID)
         }
         
         // Upgrade HTTP connection to WebSocket
+        log.Println("Upgrading connection to WebSocket...")
         conn, err := upgrader.Upgrade(w, r, nil)
         if err != nil {
                 log.Println("Failed to upgrade to WebSocket:", err)
                 return
         }
+        
+        log.Println("WebSocket connection established successfully")
         
         // Save the WebSocket connection
         sessionManager.SaveConnection(sessionID, conn)
@@ -127,14 +139,23 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
                 "description": gameState.CurrentScenario.Description,
                 "objectives": gameState.CurrentScenario.Objectives,
         }
-        conn.WriteJSON(initialMsg)
+        
+        log.Println("Sending initial game information...")
+        if err := conn.WriteJSON(initialMsg); err != nil {
+                log.Println("Error sending initial message:", err)
+                return
+        }
+        log.Println("Initial information sent successfully")
         
         // WebSocket message handling loop
+        log.Println("Starting message handling loop for session:", sessionID)
         for {
                 // Read message from client
+                log.Println("Waiting for next client message...")
                 messageType, message, err := conn.ReadMessage()
                 if err != nil {
                         log.Println("WebSocket read error:", err)
+                        log.Println("Closing session:", sessionID)
                         sessionManager.CloseSession(sessionID)
                         break
                 }
@@ -142,10 +163,16 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
                 if messageType == websocket.TextMessage {
                         // Process the command
                         cmd := string(message)
+                        log.Printf("Received command: %s", cmd)
+                        
                         output := gameState.ProcessCommand(cmd)
+                        log.Printf("Command output: %s", output)
                         
                         // Check if an objective was completed
                         objectiveCompleted := gameState.CheckObjectiveCompletion(cmd)
+                        if objectiveCompleted {
+                                log.Println("Objective completed!")
+                        }
                         
                         // Send the response back to the client
                         response := map[string]interface{}{
@@ -156,19 +183,24 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
                                 "progress": gameState.Progress,
                         }
                         
+                        log.Println("Sending command response back to client")
                         if err := conn.WriteJSON(response); err != nil {
                                 log.Println("WebSocket write error:", err)
                                 break
                         }
+                        log.Println("Response sent successfully")
                         
                         // Check if game is complete
                         if gameState.Progress >= 1.0 {
+                                log.Println("Game completed! All objectives achieved.")
                                 completeMsg := map[string]interface{}{
                                         "type": "game_complete",
                                         "message": "Congratulations! All objectives completed.",
                                 }
                                 conn.WriteJSON(completeMsg)
                         }
+                } else {
+                        log.Printf("Received non-text message type: %d", messageType)
                 }
         }
 }
