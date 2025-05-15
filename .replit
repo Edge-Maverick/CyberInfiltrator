@@ -1,0 +1,39 @@
+modules = ["go"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "HackSim Game"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "run-hacksim"
+
+[[workflows.workflow]]
+name = "HackSim Game"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "go mod tidy && go run main.go"
+
+[[workflows.workflow]]
+name = "run-hacksim"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "go run main.go"
+
+[deployment]
+run = ["sh", "-c", "go mod tidy && go run main.go"]
