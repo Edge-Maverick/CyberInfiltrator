@@ -70,9 +70,18 @@
                         </div>
                     </div>
                     <div class="terminal-container" id="terminal-container"></div>
-                    <div class="mobile-input-container">
-                        <input type="text" id="mobile-input" placeholder="Type command here..." autocomplete="off" />
-                        <button id="send-command-btn">Send</button>
+                    <div class="mobile-input-section">
+                        <div class="command-suggestions" id="command-suggestions">
+                            <button class="command-btn" data-command="help">help</button>
+                            <button class="command-btn" data-command="scan">scan</button>
+                            <button class="command-btn" data-command="connect">connect</button>
+                            <button class="command-btn" data-command="ls">ls</button>
+                            <button class="command-btn" data-command="cat">cat</button>
+                        </div>
+                        <div class="mobile-input-container">
+                            <input type="text" id="mobile-input" placeholder="Type command here..." autocomplete="off" />
+                            <button id="send-command-btn">Send</button>
+                        </div>
                     </div>
                     <div class="progress-bar">
                         <div class="progress-fill" id="progress-fill" style="width: 0%"></div>

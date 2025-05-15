@@ -225,12 +225,22 @@ main {
     min-height: 300px;
     display: flex;
     flex-direction: column;
+    position: relative; /* For absolute positioning of children if needed */
 }
 
 .terminal-container .xterm {
     height: 100%;
-    display: flex;
+    width: 100% !important; /* Force full width */
+    display: flex !important;
     flex-direction: column;
+}
+
+.terminal-container .xterm-viewport {
+    overflow-y: auto !important;
+}
+
+.terminal-container .xterm-screen {
+    width: 100% !important;
 }
 
 /* Progress bar styles */
@@ -307,12 +317,45 @@ footer {
     color: var(--terminal-black);
 }
 
+/* Mobile input section and commands */
+.mobile-input-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.command-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+    background-color: var(--header-bg);
+    border: 1px solid var(--matrix-green);
+}
+
+.command-btn {
+    background-color: #000;
+    color: var(--matrix-green);
+    border: 1px solid var(--matrix-green);
+    padding: 5px 10px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
+.command-btn:hover, .command-btn:active {
+    background-color: var(--matrix-green);
+    color: #000;
+}
+
 /* Mobile input container */
 .mobile-input-container {
     display: flex;
     width: 100%;
-    margin-top: 5px;
-    margin-bottom: 5px;
     background-color: var(--header-bg);
     border: 1px solid var(--matrix-green);
     position: relative;
@@ -398,7 +441,18 @@ footer {
     
     .terminal-container {
         min-height: 200px;
-        max-height: calc(100vh - 330px);
+        height: 50vh !important; /* More predictable height on mobile */
+        max-height: 50vh !important;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    /* Force visible terminal on mobile */
+    .terminal-container .xterm-viewport,
+    .terminal-container .xterm-screen,
+    .terminal-container .xterm {
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     
     .terminal-header {

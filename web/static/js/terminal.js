@@ -358,6 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle mobile input
     const mobileInput = document.getElementById('mobile-input');
     const sendCommandBtn = document.getElementById('send-command-btn');
+    const commandBtns = document.querySelectorAll('.command-btn');
     
     function sendMobileCommand() {
         const command = mobileInput.value.trim();
@@ -378,4 +379,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     sendCommandBtn.addEventListener('click', sendMobileCommand);
+    
+    // Handle command suggestion buttons
+    commandBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const command = btn.getAttribute('data-command');
+            mobileInput.value = command;
+            mobileInput.focus();
+        });
+    });
 });
