@@ -223,10 +223,14 @@ main {
     padding: 10px;
     overflow: hidden;
     min-height: 300px;
+    display: flex;
+    flex-direction: column;
 }
 
 .terminal-container .xterm {
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Progress bar styles */
@@ -311,26 +315,35 @@ footer {
     margin-bottom: 5px;
     background-color: var(--header-bg);
     border: 1px solid var(--matrix-green);
+    position: relative;
+    z-index: 10;
 }
 
 #mobile-input {
     flex: 1;
-    padding: 8px;
+    padding: 12px 8px;
     font-family: 'Courier New', monospace;
+    font-size: 16px; /* Prevents zoom on iOS */
     background-color: #000;
     color: var(--matrix-green);
     border: none;
     outline: none;
+    -webkit-appearance: none; /* Removes iOS styling */
+    border-radius: 0; /* Removes iOS styling */
 }
 
 #send-command-btn {
-    padding: 8px 15px;
+    padding: 12px 20px;
     background-color: #000;
     color: var(--matrix-green);
     border: none;
     border-left: 1px solid var(--matrix-green);
     cursor: pointer;
     font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    min-width: 80px;
 }
 
 #send-command-btn:hover {
@@ -338,10 +351,33 @@ footer {
     color: #000;
 }
 
+/* Active states for better mobile feedback */
+#mobile-input:focus {
+    box-shadow: 0 0 0 2px rgba(51, 255, 51, 0.3) inset;
+}
+
+#send-command-btn:active {
+    background-color: var(--matrix-green);
+    color: #000;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .ascii-logo {
+        font-size: 10px;
+    }
+    
+    .game-interface {
+        height: calc(100vh - 120px);
+    }
+    
     .mission-info {
         flex-direction: column;
+        padding: 10px;
     }
     
     .mission-details {
@@ -358,5 +394,33 @@ footer {
     
     .scenario-card {
         width: 100%;
+    }
+    
+    .terminal-container {
+        min-height: 200px;
+        max-height: calc(100vh - 330px);
+    }
+    
+    .terminal-header {
+        padding: 5px 10px;
+    }
+    
+    .debug-panel {
+        font-size: 11px;
+        padding: 5px;
+    }
+    
+    .mobile-input-container {
+        margin-top: 10px;
+    }
+    
+    #mobile-input {
+        font-size: 16px; /* Prevent zoom on input on iOS */
+        padding: 10px 8px;
+    }
+    
+    #send-command-btn {
+        padding: 10px 15px;
+        font-size: 16px;
     }
 }

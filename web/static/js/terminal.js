@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the terminal
     function initTerminal() {
+        // Determine appropriate font size based on device width
+        const isMobile = window.innerWidth < 768;
+        const fontSize = isMobile ? 12 : 14;
+        
         // Create the terminal
         terminal = new Terminal({
             cursorBlink: true,
@@ -46,8 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectionForeground: '#0C0C0C'
             },
             fontFamily: 'Courier New, monospace',
-            fontSize: 14,
-            scrollback: 1000
+            fontSize: fontSize,
+            scrollback: 1000,
+            allowTransparency: true
         });
         
         // Create and attach the fit addon
@@ -120,6 +125,18 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('resize', () => {
             fitAddon.fit();
         });
+        
+        // Additional fit handler for mobile orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                fitAddon.fit();
+            }, 100);
+        });
+        
+        // Force fit after a short delay to ensure proper sizing on all devices
+        setTimeout(() => {
+            fitAddon.fit();
+        }, 200);
         
         // Set initial prompt
         showWelcomeMessage();
