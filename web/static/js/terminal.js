@@ -261,8 +261,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             break;
                         
                         case 'command_output':
-                            // Display command output
-                            terminal.write('\r\n' + data.output + '\r\n');
+                            // First echo the command that was sent
+                            if (data.command) {
+                                terminal.write('\r\n\x1b[1;32m$ \x1b[0m' + data.command + '\r\n');
+                            }
+                            
+                            // Then display command output
+                            terminal.write(data.output + '\r\n');
+                            
+                            // Show a new prompt when done
                             showPrompt();
                             
                             // Update progress
@@ -273,6 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const index = data.objective_index || 0;
                                 markObjectiveCompleted(index);
                                 terminal.write('\r\n\x1b[1;32m✓ Objective completed!\x1b[0m\r\n');
+                                showPrompt();
                             }
                             break;
                         
