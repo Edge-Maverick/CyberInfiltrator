@@ -366,10 +366,179 @@ To implement the authentic terminal experience:
 
 ### Deployment
 
-1. **Local Deployment**:
-   - Build executable: `go build -o hacksim`
-   - Run web server: `./hacksim web`
-   - Access at http://localhost:5000
+1. **Local PC Deployment**:
+
+   a. **Basic Local Deployment**:
+   ```bash
+   # Build the executable
+   go build -o hacksim
+   
+   # Run the web server
+   ./hacksim web
+   
+   # Access in your browser
+   # http://localhost:5000
+   ```
+
+   b. **Windows Local Deployment**:
+   ```batch
+   REM Build the executable
+   go build -o hacksim.exe
+   
+   REM Run the web server
+   hacksim.exe web
+   
+   REM Access in your browser at http://localhost:5000
+   ```
+
+   c. **Local Network Access** (share with devices on your network):
+   ```bash
+   # Find your local IP address
+   # On Linux/Mac:
+   ifconfig
+   # On Windows:
+   ipconfig
+   
+   # Run the server (assuming your IP is 192.168.1.100)
+   ./hacksim web
+   
+   # Other devices on your network can now access at:
+   # http://192.168.1.100:5000
+   ```
+
+   d. **Run as a Background Service on Windows**:
+   
+   Create a file named `hacksim-service.bat`:
+   ```batch
+   @echo off
+   start /B hacksim.exe web
+   echo HackSim started! Access at http://localhost:5000
+   ```
+   
+   To start automatically with Windows, create a shortcut to this batch file in your Startup folder:
+   ```
+   %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
+   ```
+
+   e. **Run as a Background Service on macOS**:
+   
+   Create a file named `com.hacksim.plist` in `~/Library/LaunchAgents/`:
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+     <key>Label</key>
+     <string>com.hacksim</string>
+     <key>ProgramArguments</key>
+     <array>
+       <string>/path/to/hacksim</string>
+       <string>web</string>
+     </array>
+     <key>RunAtLoad</key>
+     <true/>
+   </dict>
+   </plist>
+   ```
+   
+   Load the service:
+   ```bash
+   launchctl load ~/Library/LaunchAgents/com.hacksim.plist
+   ```
+
+   f. **Local Development with Hot Reload**:
+   
+   Install [Air](https://github.com/cosmtrek/air) for hot reloading:
+   ```bash
+   # Install Air
+   go install github.com/cosmtrek/air@latest
+   
+   # Create .air.toml configuration
+   cat > .air.toml << EOF
+   root = "."
+   tmp_dir = "tmp"
+   
+   [build]
+   cmd = "go build -o ./tmp/hacksim ."
+   bin = "./tmp/hacksim web"
+   delay = 1000
+   exclude_dir = ["assets", "tmp", "vendor"]
+   exclude_file = []
+   exclude_regex = ["_test.go"]
+   include_ext = ["go", "html", "css", "js"]
+   
+   [log]
+   time = true
+   EOF
+   
+   # Run with hot reload
+   air
+   ```
+
+   g. **Running Without Installing Go (Pre-built Binaries)**:
+
+   For users who want to run HackSim without installing Go, you can create pre-built binaries for distribution:
+
+   1. Build binaries for different platforms:
+   ```bash
+   # Linux (64-bit)
+   GOOS=linux GOARCH=amd64 go build -o hacksim-linux-amd64
+   
+   # Windows (64-bit)
+   GOOS=windows GOARCH=amd64 go build -o hacksim-windows-amd64.exe
+   
+   # macOS (64-bit)
+   GOOS=darwin GOARCH=amd64 go build -o hacksim-macos-amd64
+   
+   # macOS (Apple Silicon)
+   GOOS=darwin GOARCH=arm64 go build -o hacksim-macos-arm64
+   ```
+
+   2. Create a simple distribution package with web assets:
+   ```
+   hacksim-distribution/
+   ├── linux/
+   │   └── hacksim
+   ├── windows/
+   │   └── hacksim.exe
+   ├── macos/
+   │   ├── hacksim-amd64
+   │   └── hacksim-arm64
+   └── web/
+       ├── static/
+       └── templates/
+   ```
+
+   3. Create simple launcher scripts:
+
+   **Linux/macOS** (`run.sh`):
+   ```bash
+   #!/bin/bash
+   
+   # Check the operating system
+   if [[ "$OSTYPE" == "darwin"* ]]; then
+     # macOS - Check for Apple Silicon
+     if [[ $(uname -m) == 'arm64' ]]; then
+       ./macos/hacksim-arm64 web
+     else
+       ./macos/hacksim-amd64 web
+     fi
+   else
+     # Linux
+     ./linux/hacksim web
+   fi
+   
+   echo "Open your browser at http://localhost:5000"
+   ```
+
+   **Windows** (`run.bat`):
+   ```batch
+   @echo off
+   start /B windows\hacksim.exe web
+   echo HackSim started! Open your browser at http://localhost:5000
+   ```
+
+   Users simply need to download the distribution package for their platform, extract it, and run the appropriate script. No Go installation required.
 
 2. **Replit Deployment**:
    - Create a new Repl with Go template
