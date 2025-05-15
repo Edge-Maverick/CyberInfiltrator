@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressFill = document.getElementById('progress-fill');
     const progressText = document.getElementById('progress-text');
     
+    // Debug panel elements
+    const wsStatus = document.getElementById('ws-status');
+    const sessionIdElement = document.getElementById('session-id');
+    const lastMessage = document.getElementById('last-message');
+    const reconnectBtn = document.getElementById('reconnect-btn');
+    
     // Terminal instance
     let terminal;
     let fitAddon;
@@ -142,6 +148,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/ws?session=${sessionId}`;
         
+        // Update debug panel
+        wsStatus.textContent = 'Connecting...';
+        sessionIdElement.textContent = sessionId;
+        lastMessage.textContent = 'None yet';
+        
         terminal.write(`Connecting to: ${wsUrl}\r\n`);
         
         try {
@@ -152,12 +163,16 @@ document.addEventListener('DOMContentLoaded', function() {
             socket.addEventListener('open', (event) => {
                 connectionStatus.classList.add('connected');
                 statusText.textContent = 'Connected';
+                wsStatus.textContent = 'Connected (OPEN)';
                 terminal.write('\r\nConnected to mission server.\r\n');
                 showPrompt();
             });
             
             // Listen for messages
             socket.addEventListener('message', (event) => {
+                // Update debug panel with raw message
+                lastMessage.textContent = event.data.substring(0, 50) + (event.data.length > 50 ? '...' : '');
+                
                 terminal.write(`\r\nReceived message: ${event.data.substring(0, 50)}...\r\n`);
                 
                 try {
@@ -199,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (error) {
                     terminal.write(`\r\n\x1b[1;31mError parsing message: ${error.message}\x1b[0m\r\n`);
                     console.error('Error parsing message:', error);
+                    lastMessage.textContent = `Error: ${error.message}`;
                 }
             });
             
@@ -206,6 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
             socket.addEventListener('close', (event) => {
                 connectionStatus.classList.remove('connected');
                 statusText.textContent = 'Disconnected';
+                wsStatus.textContent = `Closed (${event.code}: ${event.reason})`;
                 terminal.write(`\r\n\x1b[1;31mWebSocket closed with code: ${event.code}, reason: ${event.reason}\x1b[0m\r\n`);
                 currentSession = null;
             });
@@ -213,9 +230,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Connection error
             socket.addEventListener('error', (event) => {
                 console.error('WebSocket error:', event);
+                wsStatus.textContent = 'Error';
                 terminal.write('\r\n\x1b[1;31mWebSocket connection error. Please try again.\x1b[0m\r\n');
             });
         } catch (error) {
+            wsStatus.textContent = `Error: ${error.message}`;
             terminal.write(`\r\n\x1b[1;31mFailed to create WebSocket: ${error.message}\x1b[0m\r\n`);
             console.error('Failed to create WebSocket:', error);
         }

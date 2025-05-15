@@ -262,6 +262,47 @@ footer {
     font-size: 0.9rem;
 }
 
+/* Debug panel styles */
+.debug-panel {
+    margin-top: 10px;
+    border: 1px solid var(--matrix-green);
+    background-color: var(--header-bg);
+    padding: 10px;
+    color: var(--matrix-green);
+    border-top: none;
+}
+
+.debug-panel h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #FFFFFF;
+}
+
+.debug-info {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.debug-info p {
+    margin: 5px 0;
+}
+
+#reconnect-btn {
+    background-color: transparent;
+    color: var(--matrix-green);
+    border: 1px solid var(--matrix-green);
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+}
+
+#reconnect-btn:hover {
+    background-color: var(--matrix-green);
+    color: var(--terminal-black);
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     .mission-info {
