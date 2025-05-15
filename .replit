@@ -35,5 +35,9 @@ author = "agent"
 task = "shell.exec"
 args = "go run main.go"
 
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "go run main.go play --simple"
+
 [deployment]
 run = ["sh", "-c", "go mod tidy && go run main.go"]
