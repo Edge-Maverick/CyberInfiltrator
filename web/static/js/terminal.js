@@ -143,10 +143,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Connect to the WebSocket server
-    function connectWebSocket(sessionId) {
+    function connectWebSocket(sessionId, scenario) {
         // Determine the appropriate WebSocket protocol
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws?session=${sessionId}`;
+        const wsUrl = `${protocol}//${window.location.host}/ws?session=${sessionId}&scenario=${scenario || 'network-breach'}`;
         
         // Update debug panel
         wsStatus.textContent = 'Connecting...';
@@ -272,9 +272,9 @@ document.addEventListener('DOMContentLoaded', function() {
             terminalTitle.textContent = 'Connected: ' + data.scenario;
             currentSession = data.session_id;
             
-            // Connect to WebSocket with the session ID
-            terminal.write(`Connecting to WebSocket...\r\n`);
-            connectWebSocket(data.session_id);
+            // Connect to WebSocket with the session ID and scenario
+            terminal.write(`Connecting to WebSocket with scenario: ${scenario}...\r\n`);
+            connectWebSocket(data.session_id, scenario);
         })
         .catch(error => {
             console.error('Error creating session:', error);
@@ -295,5 +295,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const scenario = card.getAttribute('data-scenario');
             startGameSession(scenario);
         });
+    });
+    
+    // Add event listener for reconnect button
+    reconnectBtn.addEventListener('click', () => {
+        if (currentSession) {
+            const scenarioName = terminalTitle.textContent.replace('Connected: ', '');
+            terminal.write(`\r\nAttempting to reconnect to ${scenarioName}...\r\n`);
+            connectWebSocket(currentSession, scenarioName);
+        } else {
+            terminal.write('\r\nNo active session to reconnect to. Please start a new game.\r\n');
+        }
     });
 });
