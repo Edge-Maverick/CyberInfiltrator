@@ -274,14 +274,49 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             // Add a tiny delay for realism before showing output
                             setTimeout(() => {
-                                // Format the output with proper colors
+                                // Format the output with proper colors and handle special formatting
                                 let formattedOutput = data.output
                                     .replace(/error:/gi, '\x1b[1;31merror:\x1b[0m')
                                     .replace(/success/gi, '\x1b[1;32msuccess\x1b[0m')
                                     .replace(/warning:/gi, '\x1b[1;33mwarning:\x1b[0m');
                                 
-                                // Display formatted output
-                                terminal.write(formattedOutput + '\r\n');
+                                // Handle specific commands with special formatting
+                                if (data.command && data.command.trim() === 'ls') {
+                                    // Special handling for directory listings
+                                    let lines = formattedOutput.split('\n');
+                                    
+                                    // Apply monospace formatting to ensure alignment
+                                    if (lines.length > 1) {
+                                        // Write header line
+                                        terminal.write(lines[0] + '\r\n');
+                                        
+                                        // Process the actual directory listing with proper spacing
+                                        for (let i = 1; i < lines.length; i++) {
+                                            if (lines[i].trim()) {
+                                                let parts = lines[i].trim().split(/\s+/);
+                                                if (parts.length >= 2) {
+                                                    // Format permissions/type and filename with consistent spacing
+                                                    if (parts[0].startsWith('d')) {
+                                                        // Directory - blue color
+                                                        terminal.write(parts[0] + '  \x1b[1;34m' + parts[1] + '\x1b[0m\r\n');
+                                                    } else if (parts[0].startsWith('-')) {
+                                                        // File - normal color
+                                                        terminal.write(parts[0] + '  ' + parts[1] + '\r\n');
+                                                    } else {
+                                                        terminal.write(lines[i] + '\r\n');
+                                                    }
+                                                } else {
+                                                    terminal.write(lines[i] + '\r\n');
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        terminal.write(formattedOutput + '\r\n');
+                                    }
+                                } else {
+                                    // Default output handling for other commands
+                                    terminal.write(formattedOutput + '\r\n');
+                                }
                                 
                                 // Update progress
                                 updateProgress(data.progress);
