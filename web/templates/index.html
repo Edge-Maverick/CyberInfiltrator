@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/terminal.css">
+    <!-- Add XTerm.js for terminal emulation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <pre class="ascii-logo">
+  _    _          _____ _  _______ _____ __  __ 
+ | |  | |   /\   / ____| |/ / ____|_   _|  \/  |
+ | |__| |  /  \ | |    | ' / (___   | | | \  / |
+ |  __  | / /\ \| |    |  < \___ \  | | | |\/| |
+ | |  | |/ ____ \ |____| . \____) |_| |_| |  | |
+ |_|  |_/_/    \_\_____|_|\_\_____/|_____|_|  |_|
+                </pre>
+            </div>
+            <div class="tagline">Web Terminal Hacking Simulator</div>
+        </header>
+
+        <main>
+            <div class="game-container">
+                <div class="scenario-selector" id="scenario-selector">
+                    <h2>Select Mission</h2>
+                    <div class="scenario-options">
+                        <div class="scenario-card" data-scenario="network-breach">
+                            <h3>Network Breach</h3>
+                            <p>Infiltrate a corporate network and gather intelligence</p>
+                            <button class="start-btn">Start Mission</button>
+                        </div>
+                        <div class="scenario-card" data-scenario="data-heist">
+                            <h3>Data Heist</h3>
+                            <p>Steal confidential data from a secure server</p>
+                            <button class="start-btn">Start Mission</button>
+                        </div>
+                        <div class="scenario-card" data-scenario="system-takeover">
+                            <h3>System Takeover</h3>
+                            <p>Gain complete control of a target system</p>
+                            <button class="start-btn">Start Mission</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-interface" id="game-interface" style="display: none;">
+                    <div class="terminal-header">
+                        <div class="terminal-title" id="terminal-title">Connected: Unknown</div>
+                        <div class="terminal-status">
+                            <span class="status-indicator" id="connection-status">●</span>
+                            <span id="status-text">Disconnected</span>
+                        </div>
+                    </div>
+                    <div class="mission-info" id="mission-info">
+                        <div class="mission-details">
+                            <h3 id="mission-name">Mission: Unknown</h3>
+                            <p id="mission-description">No description available</p>
+                        </div>
+                        <div class="objectives-panel">
+                            <h4>Objectives</h4>
+                            <ul id="objectives-list"></ul>
+                        </div>
+                    </div>
+                    <div class="terminal-container" id="terminal-container"></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                        <div class="progress-text" id="progress-text">0%</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>HackSim - An immersive hacking simulation game © 2025</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/terminal.js"></script>
+</body>
+</html>

@@ -1,16 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"os"
+        "fmt"
+        "os"
 
-	"hacksim/cmd"
+        "hacksim/cmd"
 )
 
 func main() {
-	// Execute the root command
-	if err := cmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+        // Execute the root command
+        if err := cmd.Execute(); err != nil {
+                fmt.Fprintln(os.Stderr, err)
+                os.Exit(1)
+        }
 }

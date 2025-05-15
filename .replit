@@ -1,4 +1,4 @@
-modules = ["go"]
+modules = ["go", "golang-1.21"]
 
 [nix]
 channel = "stable-24_05"
@@ -18,6 +18,10 @@ args = "HackSim Game"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "run-hacksim"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "HackSim Web"
 
 [[workflows.workflow]]
 name = "HackSim Game"
@@ -39,5 +43,18 @@ args = "go run main.go"
 task = "shell.exec"
 args = "go run main.go play --simple"
 
+[[workflows.workflow]]
+name = "HackSim Web"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "go run main.go web"
+waitForPort = 5000
+
 [deployment]
 run = ["sh", "-c", "go mod tidy && go run main.go"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

@@ -1,0 +1,286 @@
+/* Color variables for easy theming */
+:root {
+    --matrix-green: #00FF00;
+    --soft-green: #33FF33;
+    --alert-red: #FF0000;
+    --terminal-black: #000000;
+    --term-bg: #0C0C0C;
+    --term-text: #33FF33;
+    --cyber-blue: #0066FF;
+    --dark-gray: #1E1E1E;
+    --light-gray: #CCCCCC;
+    --header-bg: #0A0A0A;
+}
+
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background-color: var(--terminal-black);
+    color: var(--soft-green);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header styles */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    margin-bottom: 10px;
+}
+
+.ascii-logo {
+    font-family: monospace;
+    color: var(--matrix-green);
+    font-size: 14px;
+    white-space: pre;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Main content area */
+main {
+    flex: 1;
+}
+
+.game-container {
+    background-color: var(--dark-gray);
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    border: 1px solid var(--matrix-green);
+}
+
+/* Scenario selector styles */
+.scenario-selector {
+    padding: 20px;
+}
+
+.scenario-selector h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--matrix-green);
+}
+
+.scenario-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.scenario-card {
+    background-color: var(--header-bg);
+    border: 1px solid var(--matrix-green);
+    border-radius: 5px;
+    padding: 15px;
+    width: 300px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.scenario-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+}
+
+.scenario-card h3 {
+    color: var(--matrix-green);
+    margin-bottom: 10px;
+}
+
+.scenario-card p {
+    margin-bottom: 15px;
+    color: var(--light-gray);
+}
+
+.start-btn {
+    background-color: transparent;
+    color: var(--matrix-green);
+    border: 1px solid var(--matrix-green);
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+    width: 100%;
+}
+
+.start-btn:hover {
+    background-color: var(--matrix-green);
+    color: var(--terminal-black);
+}
+
+/* Game interface styles */
+.game-interface {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+.terminal-header {
+    background-color: var(--header-bg);
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--matrix-green);
+}
+
+.terminal-title {
+    font-weight: bold;
+}
+
+.terminal-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-indicator {
+    font-size: 12px;
+    color: var(--alert-red);
+}
+
+.status-indicator.connected {
+    color: var(--matrix-green);
+}
+
+.mission-info {
+    display: flex;
+    background-color: var(--header-bg);
+    padding: 15px;
+    border-bottom: 1px solid var(--matrix-green);
+}
+
+.mission-details {
+    flex: 2;
+    padding-right: 15px;
+}
+
+.mission-details h3 {
+    color: var(--matrix-green);
+    margin-bottom: 5px;
+}
+
+.objectives-panel {
+    flex: 1;
+    border-left: 1px solid var(--matrix-green);
+    padding-left: 15px;
+}
+
+.objectives-panel h4 {
+    color: var(--matrix-green);
+    margin-bottom: 10px;
+}
+
+.objectives-panel ul {
+    list-style-type: none;
+}
+
+.objectives-panel li {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.objectives-panel li::before {
+    content: "○";
+    margin-right: 5px;
+    color: var(--light-gray);
+}
+
+.objectives-panel li.completed::before {
+    content: "●";
+    color: var(--matrix-green);
+}
+
+.terminal-container {
+    flex: 1;
+    background-color: var(--term-bg);
+    padding: 10px;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+.terminal-container .xterm {
+    height: 100%;
+}
+
+/* Progress bar styles */
+.progress-bar {
+    background-color: var(--header-bg);
+    height: 30px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-top: 1px solid var(--matrix-green);
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--matrix-green);
+    opacity: 0.6;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+}
+
+/* Footer styles */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    border-top: 1px solid var(--matrix-green);
+    font-size: 0.9rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .mission-info {
+        flex-direction: column;
+    }
+    
+    .mission-details {
+        padding-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .objectives-panel {
+        border-left: none;
+        border-top: 1px solid var(--matrix-green);
+        padding-left: 0;
+        padding-top: 15px;
+    }
+    
+    .scenario-card {
+        width: 100%;
+    }
+}
