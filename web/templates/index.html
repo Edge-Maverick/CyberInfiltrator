@@ -64,10 +64,19 @@
                             <h3 id="mission-name">Mission: Unknown</h3>
                             <p id="mission-description">No description available</p>
                         </div>
-                        <div class="objectives-panel">
-                            <h4>Objectives</h4>
-                            <ul id="objectives-list"></ul>
+                        <div class="mobile-mission-controls">
+                            <button id="toggle-objectives-btn" class="control-btn">Objectives</button>
+                            <div class="objective-counter">
+                                <span id="completed-count">0</span>/<span id="total-count">0</span>
+                            </div>
                         </div>
+                    </div>
+                    <div class="objectives-panel" id="objectives-panel" style="display: none;">
+                        <div class="objectives-header">
+                            <h4>Mission Objectives</h4>
+                            <button id="close-objectives-btn" class="close-btn">×</button>
+                        </div>
+                        <ul id="objectives-list"></ul>
                     </div>
                     <div class="terminal-container" id="terminal-container"></div>
                     <div class="mobile-input-section">

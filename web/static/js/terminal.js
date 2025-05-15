@@ -165,11 +165,28 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add objectives
         if (objectives && objectives.length) {
+            // Update objective counters
+            document.getElementById('total-count').textContent = objectives.length;
+            document.getElementById('completed-count').textContent = '0';
+            
             objectives.forEach((objective, index) => {
                 const li = document.createElement('li');
                 li.setAttribute('data-id', index);
                 li.textContent = objective.Description || objective.description;
                 objectivesList.appendChild(li);
+            });
+            
+            // Add event listeners for objectives panel
+            const toggleBtn = document.getElementById('toggle-objectives-btn');
+            const closeBtn = document.getElementById('close-objectives-btn');
+            const objectivesPanel = document.getElementById('objectives-panel');
+            
+            toggleBtn.addEventListener('click', () => {
+                objectivesPanel.style.display = 'block';
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                objectivesPanel.style.display = 'none';
             });
         }
     }
@@ -186,6 +203,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const objective = objectivesList.querySelector(`li[data-id="${index}"]`);
         if (objective) {
             objective.classList.add('completed');
+            
+            // Update completed objectives counter
+            const completedCount = document.getElementById('completed-count');
+            const currentCompleted = parseInt(completedCount.textContent);
+            completedCount.textContent = currentCompleted + 1;
+            
+            // Flash the counter to draw attention
+            const objectiveCounter = document.querySelector('.objective-counter');
+            objectiveCounter.style.color = '#ffffff';
+            setTimeout(() => {
+                objectiveCounter.style.color = 'var(--matrix-green)';
+            }, 300);
         }
     }
     
