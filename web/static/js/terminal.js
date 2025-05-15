@@ -224,12 +224,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/ws?session=${sessionId}&scenario=${scenario || 'network-breach'}`;
         
-        // Update debug panel
+        // Update debug panel (invisible to user)
         wsStatus.textContent = 'Connecting...';
         sessionIdElement.textContent = sessionId;
         lastMessage.textContent = 'None yet';
         
-        terminal.write(`Connecting to: ${wsUrl}\r\n`);
+        terminal.write(`Connecting to mission server...\r\n`);
         
         try {
             // Create WebSocket connection
@@ -246,19 +246,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Listen for messages
             socket.addEventListener('message', (event) => {
-                // Update debug panel with raw message
+                // Update debug panel with raw message (hidden from user)
                 lastMessage.textContent = event.data.substring(0, 50) + (event.data.length > 50 ? '...' : '');
-                
-                terminal.write(`\r\nReceived message: ${event.data.substring(0, 50)}...\r\n`);
                 
                 try {
                     const data = JSON.parse(event.data);
                     
                     switch (data.type) {
                         case 'info':
-                            terminal.write('Received mission info.\r\n');
-                            // Update mission info
+                            // Update mission info without debug message
                             updateMissionInfo(data.scenario, data.description, data.objectives);
+                            terminal.write('\r\nMission information received. Check objectives to see your tasks.\r\n');
+                            showPrompt();
                             break;
                         
                         case 'command_output':
@@ -337,19 +336,17 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({ scenario: scenario })
         })
         .then(response => {
-            terminal.write(`API Response Status: ${response.status}\r\n`);
             if (!response.ok) {
                 throw new Error(`Server responded with status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            terminal.write(`Session created: ${data.session_id}\r\n`);
             terminalTitle.textContent = 'Connected: ' + data.scenario;
             currentSession = data.session_id;
             
             // Connect to WebSocket with the session ID and scenario
-            terminal.write(`Connecting to WebSocket with scenario: ${scenario}...\r\n`);
+            terminal.write(`Initializing mission "${scenario}"...\r\n`);
             connectWebSocket(data.session_id, scenario);
         })
         .catch(error => {
@@ -393,7 +390,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const command = mobileInput.value.trim();
         if (command && socket && socket.readyState === WS_OPEN) {
             socket.send(command);
-            terminal.write(`\r\n${command}\r\n`);
+            
+            // We don't write the command to the terminal here anymore
+            // The server will echo it back as part of the response
+            
             mobileInput.value = '';
         } else if (command) {
             terminal.write('\r\nNot connected to server. Please try again.\r\n');
