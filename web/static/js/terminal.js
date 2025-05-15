@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function connectWebSocket(sessionId) {
         // Determine the appropriate WebSocket protocol
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/${sessionId}`;
+        const wsUrl = `${protocol}//${window.location.host}/ws?session=${sessionId}`;
         
         // Create WebSocket connection
         socket = new WebSocket(wsUrl);
