@@ -1,8 +1,20 @@
 # HackSim: Terminal-Based Hacking Simulation Game
 
-![HackSim Logo](generated-icon.png)
+![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Go Version](https://img.shields.io/badge/go-%3E%3D1.16-blue.svg)
 
-HackSim is an immersive terminal-based hacking simulation game built with Go and modern web technologies. It allows players to complete hacking missions through an authentic terminal experience accessible via desktop and mobile browsers.
+<p align="center">
+  <img src="generated-icon.png" alt="HackSim Logo" width="200"/>
+</p>
+
+<p align="center">
+  An immersive terminal-based hacking simulation game built with Go and modern web technologies.
+</p>
+
+<p align="center">
+  Complete realistic hacking missions through an authentic terminal experience accessible via desktop and mobile browsers.
+</p>
 
 ## Table of Contents
 
@@ -1087,19 +1099,79 @@ To implement the mobile-friendly features:
 
 ## Contributing
 
-We welcome contributions to HackSim! Please follow these steps:
+We welcome contributions to improve HackSim! Here's how you can help:
+
+### Code Contributions
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Make your changes
-4. Commit your changes (`git commit -m 'Add some amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+4. Run tests: `go test ./...`
+5. Commit your changes: `git commit -m 'Add some amazing feature'`
+6. Push to the branch: `git push origin feature/amazing-feature`
+7. Open a Pull Request
+
+### Issues and Bug Reports
+
+* Use the [GitHub Issue Tracker](https://github.com/yourusername/hacksim/issues) to report bugs
+* Please include:
+  * Clear bug description
+  * Steps to reproduce
+  * Expected vs actual behavior
+  * Screenshots if applicable
+  * Your environment details
+
+### Feature Requests
+
+* Submit feature requests through GitHub Issues with the `enhancement` label
+* Describe your use case and why it would benefit other users
+
+### Documentation Improvements
+
+* Documentation fixes and improvements are always welcome
+* Submit pull requests to enhance this README or code documentation
+
+## Security
+
+If you discover a security vulnerability, please send an email to security@example.com instead of using the issue tracker. Security issues will be addressed with the highest priority.
+
+## Code of Conduct
+
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project, you agree to abide by its terms.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) 2023 HackSim Project Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 ---
 
-Created by [Your Name/Organization] - Happy Hacking!
+<p align="center">
+  <img src="https://img.shields.io/github/stars/yourusername/hacksim?style=social" alt="GitHub stars"/>
+  <img src="https://img.shields.io/github/forks/yourusername/hacksim?style=social" alt="GitHub forks"/>
+  <br/>
+  Created with ❤️ for the hacker community - Happy Hacking!
+</p>
