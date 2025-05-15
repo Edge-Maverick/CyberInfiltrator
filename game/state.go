@@ -16,6 +16,7 @@ type State struct {
         DetectionChance float64
         ToolsUnlocked   []string
         CommandHistory  []string
+        CommandsIssued  int           // Counter for number of commands issued
         StartTime       time.Time
 }
 
@@ -49,8 +50,9 @@ func NewGameState(scenarioName string) *State {
                 Progress:        0.0,
                 SecurityLevel:   scenario.InitialSecurityLevel,
                 DetectionChance: 0.1,
-                ToolsUnlocked:   []string{"scan", "connect", "ls", "cat", "help"},
+                ToolsUnlocked:   []string{"scan", "connect", "ls", "cat", "crack", "help"},
                 CommandHistory:  []string{},
+                CommandsIssued:  0,
                 StartTime:       time.Now(),
         }
 }
@@ -59,6 +61,9 @@ func NewGameState(scenarioName string) *State {
 func (s *State) ProcessCommand(cmd string) string {
         // Add command to history
         s.CommandHistory = append(s.CommandHistory, cmd)
+        
+        // Increment commands issued counter
+        s.CommandsIssued++
         
         // Parse command and arguments
         parts := strings.Fields(cmd)
@@ -213,16 +218,77 @@ func (s *State) crackCommand(args []string) string {
         
         target := args[0]
         
-        // Simulate cracking process with some difficulty based on security level
-        // For this simulation, always succeed
-        success := true
-        
-        if success {
-                s.unlockTool("exploit")
-                return "Successfully cracked " + target + "!\nNew tool unlocked: exploit"
+        // Must be connected to a node to crack
+        if s.Network.CurrentNode == "" {
+                return "Error: Not connected to any system. Use 'connect' command first."
         }
         
-        return "Failed to crack " + target + ". Try a different approach."
+        // Build a fake cracking simulation with progress display
+        result := "Attempting to crack " + target + " credentials...\n"
+        result += "[■■■■□□□□□□] 40%... analyzing hash types\n"
+        result += "[■■■■■■□□□□] 60%... trying dictionary attack\n"
+        result += "[■■■■■■■■□□] 80%... applying rules\n"
+        result += "[■■■■■■■■■■] 100%\n\n"
+        
+        // Check if this is a valid target for the current scenario
+        success := false
+        var credentials string
+        
+        // Scenario-specific cracking success logic
+        switch s.CurrentScenario.Name {
+        case "Network Breach":
+                if target == "admin" && s.Network.CurrentNode == "192.168.1.10" {
+                        success = true
+                        credentials = "Username: admin\nPassword: dbmaster2023!"
+                        s.unlockTool("download")
+                } else if target == "root" && s.Network.CurrentNode == "192.168.1.1" {
+                        success = true
+                        credentials = "Username: root\nPassword: s3cureR0uter!"
+                }
+        case "Data Heist":
+                if target == "webadmin" && s.Network.CurrentNode == "10.0.1.20" {
+                        success = true  
+                        credentials = "Username: webadmin\nPassword: Web@dmin2023"
+                        s.unlockTool("exploit")
+                } else if target == "database" && s.Network.CurrentNode == "10.0.1.30" {
+                        success = true
+                        credentials = "Username: dbuser\nPassword: FileS3rverPwd!"
+                        s.unlockTool("download")
+                }
+        case "System Takeover":
+                if target == "control" && s.Network.CurrentNode == "172.16.1.100" {
+                        success = true
+                        credentials = "Username: sysadmin\nPassword: C0ntr0lSyst3m!"
+                        s.unlockTool("exploit")
+                }
+        }
+        
+        if success {
+                result += "CRACK SUCCESSFUL!\n\n"
+                result += "Credentials recovered:\n" + credentials + "\n\n"
+                
+                // Check if this completes any objectives
+                for i, objective := range s.CurrentScenario.Objectives {
+                        if !objective.Completed && objective.Type == "command" && objective.Target == "crack" {
+                                s.CurrentScenario.Objectives[i].Completed = true
+                                s.updateProgress()
+                                result += "Objective completed: " + objective.Description + "\n"
+                        }
+                }
+                
+                // If any new tools were unlocked, add them to the message
+                if s.isToolUnlocked("download") && !s.isToolUnlocked("exploit") {
+                        result += "New tool unlocked: download"
+                } else if s.isToolUnlocked("exploit") && !s.isToolUnlocked("download") {
+                        result += "New tool unlocked: exploit"
+                } else if s.isToolUnlocked("download") && s.isToolUnlocked("exploit") {
+                        result += "Tools available: download, exploit"
+                }
+                
+                return result
+        }
+        
+        return result + "Crack failed. Invalid target or wrong system.\nTry a different target or connect to another system."
 }
 
 // exploitCommand exploits a vulnerability

@@ -11,6 +11,7 @@ import (
 
 var scenarioFlag string
 var debugModeFlag bool
+var simpleModeFlag bool
 
 // playCmd represents the play command
 var playCmd = &cobra.Command{
@@ -24,7 +25,7 @@ Available scenarios: network-breach, data-heist, system-takeover.`,
                 gameState := game.NewGameState(scenarioFlag)
                 
                 if debugModeFlag {
-                        // Run in debug mode
+                        // Run in debug mode (non-interactive)
                         fmt.Println("Running HackSim in debug mode")
                         fmt.Println("Scenario:", gameState.CurrentScenario.Name)
                         fmt.Println("Description:", gameState.CurrentScenario.Description)
@@ -42,7 +43,14 @@ Available scenarios: network-breach, data-heist, system-takeover.`,
                         fmt.Println("\nExample Commands:")
                         
                         // Run a few sample commands automatically to demonstrate functionality
-                        sampleCommands := []string{"help", "scan", "connect 192.168.1.1", "ls", "cat welcome.txt"}
+                        var sampleCommands []string
+                        if scenarioFlag == "data-heist" {
+                                sampleCommands = []string{"help", "scan", "connect 10.0.1.20", "ls", "cat mission.txt"}
+                        } else if scenarioFlag == "system-takeover" {
+                                sampleCommands = []string{"help", "scan", "connect 172.16.1.100", "ls", "cat readme.txt"}
+                        } else {
+                                sampleCommands = []string{"help", "scan", "connect 192.168.1.1", "ls", "cat welcome.txt"}
+                        }
                         
                         for _, cmd := range sampleCommands {
                                 fmt.Printf("\n$ %s\n", cmd)
@@ -52,12 +60,26 @@ Available scenarios: network-breach, data-heist, system-takeover.`,
                         
                         fmt.Println("\nIn standard mode, the game provides an interactive terminal interface.")
                         
+                } else if simpleModeFlag {
+                        // Run in simple TUI mode (works reliably across environments)
+                        simpleTUI := ui.NewSimpleTUI(gameState)
+                        simpleTUI.Run()
                 } else {
-                        // Start with splash screen in TUI mode
+                        // Start with full Bubbletea TUI mode
+                        fmt.Println("Starting HackSim in full TUI mode...")
+                        fmt.Println("If you encounter display issues, try running with --simple flag")
+                        fmt.Println("Press Ctrl+C to exit if needed")
+                        
+                        // Start with splash screen in full TUI mode
                         splashModel := ui.NewSplashModel(gameState)
                         p := tea.NewProgram(splashModel, tea.WithAltScreen())
                         if _, err := p.Run(); err != nil {
-                                cmd.PrintErr("Error running game: ", err)
+                                fmt.Println("Error running TUI:", err)
+                                fmt.Println("Falling back to simple mode...")
+                                
+                                // Fall back to simple mode if Bubbletea fails
+                                simpleTUI := ui.NewSimpleTUI(gameState)
+                                simpleTUI.Run()
                         }
                 }
         },
@@ -68,5 +90,6 @@ func init() {
         
         // Add flags specific to the play command
         playCmd.Flags().StringVarP(&scenarioFlag, "scenario", "s", "network-breach", "Select a game scenario to play")
-        playCmd.Flags().BoolVarP(&debugModeFlag, "debug", "d", false, "Run in debug mode (simpler output)")
+        playCmd.Flags().BoolVarP(&debugModeFlag, "debug", "d", false, "Run in debug mode (non-interactive demo)")
+        playCmd.Flags().BoolVarP(&simpleModeFlag, "simple", "", false, "Run in simple mode (reliable terminal interface)")
 }

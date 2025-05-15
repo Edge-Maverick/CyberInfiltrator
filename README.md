@@ -61,9 +61,29 @@ go run main.go play -s data-heist
 go run main.go help
 ```
 
-### Debug Mode
+### Interface Modes
 
-For testing or development, you can use the debug mode:
+HackSim offers multiple interface options to suit different environments:
+
+#### Standard Mode
+
+The default mode uses Bubbletea for a rich interactive terminal experience:
+
+```bash
+go run main.go play
+```
+
+#### Simple Mode
+
+A reliable terminal interface that works across virtually all environments:
+
+```bash
+go run main.go play --simple
+```
+
+#### Debug Mode
+
+For testing or development, you can use the non-interactive debug mode:
 
 ```bash
 go run main.go play --debug
@@ -71,10 +91,10 @@ go run main.go play --debug
 
 ### Demo Script
 
-To see the game's functionality without the TUI interface:
+To see the game's functionality with a scripted walkthrough:
 
 ```bash
-go run demo.go
+go run demo_script.go
 ```
 
 ## Development
